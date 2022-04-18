@@ -1601,11 +1601,6 @@ func (ssa *SQLStorageAuthority) GetAuthorizations2(ctx context.Context, req *sap
 		identifierTypeToUint[string(identifier.DNS)],
 	}
 
-	useIndex := ""
-	if features.Enabled(features.GetAuthzUseIndex) {
-		useIndex = "USE INDEX (regID_identifier_status_expires_idx)"
-	}
-
 	qmarks := make([]string, len(req.Domains))
 	for i, n := range req.Domains {
 		qmarks[i] = "?"
@@ -1614,6 +1609,7 @@ func (ssa *SQLStorageAuthority) GetAuthorizations2(ctx context.Context, req *sap
 
 	query := fmt.Sprintf(
 		`SELECT %s FROM authz2
+		  USE INDEX (regID_identifier_status_expires_idx)
 			%s
 			WHERE registrationID = ? AND
 			status IN (?,?) AND
@@ -1621,15 +1617,10 @@ func (ssa *SQLStorageAuthority) GetAuthorizations2(ctx context.Context, req *sap
 			identifierType = ? AND
 			identifierValue IN (%s)`,
 		authzFields,
-		useIndex,
 		strings.Join(qmarks, ","),
 	)
 
-	dbMap := ssa.dbMap
-	if features.Enabled(features.GetAuthzReadOnly) {
-		dbMap = ssa.dbReadOnlyMap
-	}
-	_, err := dbMap.Select(
+	_, err := ssa.dbReadOnlyMap.Select(
 		&authzModels,
 		query,
 		params...,

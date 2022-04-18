@@ -2426,11 +2426,9 @@ func (ra *RegistrationAuthorityImpl) NewOrder(ctx context.Context, req *rapb.New
 	if err != nil {
 		return nil, err
 	}
-	if features.Enabled(features.CheckFailedAuthorizationsFirst) {
-		err := ra.checkInvalidAuthorizationLimits(ctx, newOrder.RegistrationID, newOrder.Names)
-		if err != nil {
-			return nil, err
-		}
+	err := ra.checkInvalidAuthorizationLimits(ctx, newOrder.RegistrationID, newOrder.Names)
+	if err != nil {
+		return nil, err
 	}
 
 	// An order's lifetime is effectively bound by the shortest remaining lifetime
@@ -2511,12 +2509,6 @@ func (ra *RegistrationAuthorityImpl) NewOrder(ctx context.Context, req *rapb.New
 		err := ra.checkPendingAuthorizationLimit(ctx, newOrder.RegistrationID)
 		if err != nil {
 			return nil, err
-		}
-		if !features.Enabled(features.CheckFailedAuthorizationsFirst) {
-			err := ra.checkInvalidAuthorizationLimits(ctx, newOrder.RegistrationID, missingAuthzNames)
-			if err != nil {
-				return nil, err
-			}
 		}
 	}
 

@@ -18,6 +18,9 @@ const (
 	StoreIssuerInfo
 	StreamlineOrderAndAuthzs
 	V1DisableNewValidations
+	GetAuthzReadOnly
+	GetAuthzUseIndex
+	CheckFailedAuthorizationsFirst
 
 	//   Currently in-use features
 	// Check CAA and respect validationmethods parameter.
@@ -50,15 +53,6 @@ const (
 	// ServeRenewalInfo exposes the renewalInfo endpoint in the directory and for
 	// GET requests. WARNING: This feature is a draft and highly unstable.
 	ServeRenewalInfo
-	// GetAuthzReadOnly causes the SA to use its read-only database connection
-	// (which is generally pointed at a replica rather than the primary db) when
-	// querying the authz2 table.
-	GetAuthzReadOnly
-	// GetAuthzUseIndex causes the SA to use to add a USE INDEX hint when it
-	// queries the authz2 table.
-	GetAuthzUseIndex
-	// Check the failed authorization limit before doing authz reuse.
-	CheckFailedAuthorizationsFirst
 	// AllowReRevocation causes the RA to allow the revocation reason of an
 	// already-revoked certificate to be updated to `keyCompromise` from any
 	// other reason if that compromise is demonstrated by making the second
